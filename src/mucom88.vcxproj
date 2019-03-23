@@ -95,6 +95,7 @@
     <ClCompile Include="mucomvm.cpp" />
     <ClCompile Include="osdep.cpp" />
     <ClCompile Include="plugin\plugin.cpp" />
+    <ClCompile Include="setting.cpp" />
     <ClCompile Include="soundbuf.cpp" />
     <ClCompile Include="wavout.cpp" />
     <ClCompile Include="win32\osdep_win.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="osdep.h" />
     <ClInclude Include="plugin\mucom88if.h" />
     <ClInclude Include="plugin\plugin.h" />
+    <ClInclude Include="setting.h" />
     <ClInclude Include="soundbuf.h" />
     <ClInclude Include="voiceformat.h" />
     <ClInclude Include="wavout.h" />

@@ -80,6 +80,8 @@ private:
 
 	int64_t last_ft;
 
+	DWORD last_tick;
+
 	HANDLE hevent;
 	HANDLE hthread;
 	DWORD threadid;

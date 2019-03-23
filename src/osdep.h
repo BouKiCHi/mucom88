@@ -9,6 +9,8 @@
 #include "callback.h"
 #include "plugin/mucom88if.h"
 
+#include "setting.h"
+
 #define TICK_SHIFT 10
 #define TICK_FACTOR 1024.0
 
@@ -19,6 +21,9 @@ class OsDependent  {
 public:
 	OsDependent();
 	virtual ~OsDependent();
+
+	//
+	Setting *setting;
 
 	// COM‚Ì‰Šú‰»(Å‰‚Ì‚P‰ñ‚Ì‚İ)
 	virtual bool CoInitialize()=0;

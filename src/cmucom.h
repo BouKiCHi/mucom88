@@ -9,6 +9,7 @@
 #include <string>
 #include "membuf.h"
 #include "voiceformat.h"
+#include "setting.h"
 
 /*------------------------------------------------------------*/
 
@@ -219,6 +220,8 @@ public:
 	CMucom();
 	~CMucom();
 
+	void InitializeVM(Setting * setting);
+
 	//	MUCOM88 main service
 	void Init(void *window = NULL, int option = 0, int Rate = 0);
 	void Reset(int option=0);
@@ -317,6 +320,7 @@ public:
 private:
 	//		Settings
 	//
+	Setting *setting;
 	int	flag;			// flag (0=none/1=active)
 	bool playflag;		// playing flag
 	char pcmfilename[MUCOM_FILE_MAXSTR];	// loaded PCM file

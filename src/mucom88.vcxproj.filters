@@ -65,6 +65,9 @@
     <ClCompile Include="plugin\plugin.cpp">
       <Filter>plugin</Filter>
     </ClCompile>
+    <ClCompile Include="setting.cpp">
+      <Filter>mucom88</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bin_errmsg.h" />
@@ -164,6 +167,9 @@
       <Filter>plugin</Filter>
     </ClInclude>
     <ClInclude Include="voiceformat.h">
+      <Filter>mucom88</Filter>
+    </ClInclude>
+    <ClInclude Include="setting.h">
       <Filter>mucom88</Filter>
     </ClInclude>
   </ItemGroup>

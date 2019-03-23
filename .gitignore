@@ -24,3 +24,5 @@ src/Debug
 
 .DS_Store
 xcode/.DS_Store
+src/Release/
+.vscode/ipch/

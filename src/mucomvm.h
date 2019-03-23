@@ -138,6 +138,9 @@ public:
 	void FreePlugins(void);
 	void NoticePlugins(int cmd, void *p1 = NULL, void *p2=NULL);
 
+	// ê›íË
+	Setting *setting;
+
 private:
 	//		Z80
 	int32_t load(uint16_t adr);

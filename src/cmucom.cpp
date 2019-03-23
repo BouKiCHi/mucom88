@@ -115,6 +115,12 @@ CMucom::~CMucom( void )
 	if (vm != NULL) delete vm;
 }
 
+// VMの初期化と設定
+void CMucom::InitializeVM(Setting *setting) {
+	vm = new mucomvm();
+	this->setting = setting;
+	vm->setting = setting;
+}
 
 void CMucom::Init(void *window, int option, int rate)
 {
@@ -123,7 +129,6 @@ void CMucom::Init(void *window, int option, int rate)
 	//		               (NULLの場合はアクティブウインドウが選択される)
 	//		option : 0   = 1:FMをミュート  2:SCCIを使用
 	//
-	vm = new mucomvm;
 	flag = 1;
 
 	// レート設定

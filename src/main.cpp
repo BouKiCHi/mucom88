@@ -47,6 +47,7 @@ static const char *p[] = {
 	"       -x Record WAV file",
 	"       -d Dump used voice parameter",
 	"       -l [n] Set Recording lengh to n seconds ",
+	"       -q [Level] Set timer level ",
 	NULL };
 	int i;
 	for (i = 0; p[i]; i++) {
@@ -68,6 +69,8 @@ int main( int argc, char *argv[] )
 	const char *wavfile;
 	const char *voicefile;
 	const char *pluginfile;
+
+	Setting setting;
 
 #if defined(USE_SDL) && defined(_WIN32)
 	freopen( "CON", "w", stdout );
@@ -143,6 +146,9 @@ int main( int argc, char *argv[] )
 			case 'l':
 				song_length = atoi(argv[b + 1]); b++;
 				break;
+			case 'q':
+				setting.SetTimerMode(atoi(argv[b + 1])); b++;
+				break;
 			case 'c':
 				cmpopt |= 2;
 				break;
@@ -175,6 +181,8 @@ int main( int argc, char *argv[] )
 
 	//		call main
 	CMucom mucom;
+
+	mucom.InitializeVM(&setting);
 
 	if (cmpopt & MUCOM_CMPOPT_STEP) {
 		mucom.Init(NULL,cmpopt,RENDER_RATE);

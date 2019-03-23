@@ -13,7 +13,6 @@
 #include "soundds.h"
 
 #define USE_SCCI
-#define USE_HIGH_LEVEL_COUNTER
 
 /*-------------------------------------------------------------------------------*/
 
@@ -224,37 +223,42 @@ int OsDependentWin32::StopThread(void)
 
 void OsDependentWin32::ResetTime()
 {
-#ifdef USE_HIGH_LEVEL_COUNTER
-	GetSystemTimeAsFileTime((FILETIME *)&last_ft);
-#else
-	last_tick = timeGetTime();
-#endif
+	switch (setting->TimerMode) {
+		case TimerHigh:
+			GetSystemTimeAsFileTime((FILETIME *)&last_ft);
+		break;
+		case TimerNormal:
+			last_tick = timeGetTime();
+		break;
+	}
 }
 
 
 int OsDependentWin32::GetElapsedTime()
 {
-#ifdef USE_HIGH_LEVEL_COUNTER
+	switch (setting->TimerMode) {
+		case TimerHigh: {
+			int64_t cur_ft;		// 100ƒiƒm•b’PˆÊ‚ÌŽžŠÔ
+			int64_t pass_ft;
+			double ms;
+			GetSystemTimeAsFileTime((FILETIME *)&cur_ft);
+			pass_ft = cur_ft - last_ft;
+			last_ft = cur_ft;
 
-	int64_t cur_ft;		// 100ƒiƒm•b’PˆÊ‚ÌŽžŠÔ
-	int64_t pass_ft;
-	double ms;
-	GetSystemTimeAsFileTime((FILETIME *)&cur_ft);
-	pass_ft = cur_ft - last_ft;
-	last_ft = cur_ft;
+			ms = ((double)pass_ft) * (0.0001 * TICK_FACTOR);	// 1ƒ~ƒŠ•b=1024 ’PˆÊ‚É’¼‚·
+			//printf( "(%f)\n",ms );
 
-	ms = ((double)pass_ft) * (0.0001 * TICK_FACTOR);	// 1ƒ~ƒŠ•b=1024 ’PˆÊ‚É’¼‚·
-	//printf( "(%f)\n",ms );
-
-	return (int)(ms);
-
-#else
-	int curtime;
-	curtime = timeGetTime();
-	pass_tick = curtime - last_tick;
-	last_tick = curtime;
-	return 1024 * pass_tick;
-#endif
+			return (int)(ms);
+		}
+		case TimerNormal: {
+			DWORD curtime = timeGetTime();
+			DWORD pass_tick = curtime - last_tick;
+			last_tick = curtime;
+			return 1024 * pass_tick;
+		}
+	}
+	
+	return 0;
 }
 
 

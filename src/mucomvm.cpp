@@ -161,6 +161,8 @@ void mucomvm::InitSoundSystem(int rate)
 	osd = new OSDEP_CLASS();
 	if (osd == NULL) return;
 
+	osd->setting = setting;
+
 	//		COM‰Šú‰»
 	//
 	osd->CoInitialize();
