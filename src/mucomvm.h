@@ -18,6 +18,8 @@
 
 #include "codeconv.h"
 
+#include "IFmSoundChip.h"
+
 //#define DEBUGZ80_TRACE
 
 enum {
@@ -208,7 +210,14 @@ public:
 
 	CodeConvert *Conv;
 
+	void UseYmFm() {
+		use_ymfm = true;
+	}
+
 private:
+	bool use_ymfm = false;	// YM FM use flag
+	IFmSoundChip* NewChip();
+
 	//		Z80
 	int32_t load(uint16_t adr);
 	int32_t loadpc(uint16_t adr);
@@ -242,7 +251,7 @@ private:
 
 
 	//		音源
-	FM::OPNA *opn;
+	IFmSoundChip *opn;
 
 	FILE *trace_fp;
 

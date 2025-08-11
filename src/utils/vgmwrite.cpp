@@ -5,6 +5,7 @@
 #include "vgmwrite.h"
 
 VGMWrite::VGMWrite() {
+	fp = NULL;
 	BaseTick = 0;
 	SyncBufferTicks = 0;
 	LoopPoint = 0;

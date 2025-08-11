@@ -77,6 +77,19 @@
     <ClCompile Include="utils\codeconv\codeconv_dummy.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="ymfm\src\ymfm_adpcm.cpp">
+      <Filter>ymfm</Filter>
+    </ClCompile>
+    <ClCompile Include="ymfm\src\ymfm_misc.cpp">
+      <Filter>ymfm</Filter>
+    </ClCompile>
+    <ClCompile Include="ymfm\src\ymfm_opn.cpp">
+      <Filter>ymfm</Filter>
+    </ClCompile>
+    <ClCompile Include="ymfm\src\ymfm_ssg.cpp">
+      <Filter>ymfm</Filter>
+    </ClCompile>
+    <ClCompile Include="YmFmChip.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fmgen\types.h" />
@@ -185,6 +198,30 @@
     <ClInclude Include="utils\codeconv\codeconv_dummy.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="ymfm\src\ymfm.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="ymfm\src\ymfm_adpcm.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="ymfm\src\ymfm_fm.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="ymfm\src\ymfm_fm.ipp">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="ymfm\src\ymfm_misc.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="ymfm\src\ymfm_opn.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="ymfm\src\ymfm_ssg.h">
+      <Filter>ymfm</Filter>
+    </ClInclude>
+    <ClInclude Include="IFmSoundChip.h" />
+    <ClInclude Include="OpnaFmChip.h" />
+    <ClInclude Include="YmFmChip.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Z80">
@@ -204,6 +241,9 @@
     </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{4c10f201-8b9f-4cbc-a37b-3e72434b2b53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ymfm">
+      <UniqueIdentifier>{29241cfe-ab2e-4e82-8a8a-851354076daa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

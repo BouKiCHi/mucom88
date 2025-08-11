@@ -518,10 +518,15 @@ public:
 	void DebugRun();
 	void DebugInstExec();
 	void DebugPause();
-	void GetRegSet(RegSet *reg);
+	void GetRegSet(RegSet* reg);
+
+	void UseYmFm() {
+		use_ymfm = true;
+	}
 
 
 private:
+	bool use_ymfm = false;	// YM FM use flag
 	//		Settings
 	//
 	int	flag;			// flag (0=none/1=active)

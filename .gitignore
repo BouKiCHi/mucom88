@@ -21,4 +21,9 @@ xcode/miniosx.xcodeproj/project.xcworkspace/xcuserdata
 src/mucom88.vcxproj.user
 src/.vs/
 src/Debug
+src/Release
+
+src/pcmtool/Debug
+src/pcmtool/Release
+.vscode/
 

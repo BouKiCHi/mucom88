@@ -14,19 +14,19 @@
     <ProjectGuid>{DC3A1DD3-7664-48A9-88C2-AB16D9CACCE1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>mucom88</RootNamespace>
-    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141_xp</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141_xp</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -42,12 +42,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);utils/codeconv;</IncludePath>
+    <IncludePath>ymfm\src\;$(VC_IncludePath);$(WindowsSDK_IncludePath);utils\codeconv\</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(Configuration)\$(ProjectName)</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);utils/codeconv;</IncludePath>
+    <IncludePath>ymfm\src\;$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);utils\codeconv\</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -58,6 +58,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;MUCOM88WIN;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,6 +110,11 @@
     <ClCompile Include="win32\osdep_win.cpp" />
     <ClCompile Include="win32\realchip.cpp" />
     <ClCompile Include="win32\soundds.cpp" />
+    <ClCompile Include="YmFmChip.cpp" />
+    <ClCompile Include="ymfm\src\ymfm_adpcm.cpp" />
+    <ClCompile Include="ymfm\src\ymfm_misc.cpp" />
+    <ClCompile Include="ymfm\src\ymfm_opn.cpp" />
+    <ClCompile Include="ymfm\src\ymfm_ssg.cpp" />
     <ClCompile Include="Z80\Z80.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -126,11 +132,13 @@
     <ClInclude Include="fmgen\opna.h" />
     <ClInclude Include="fmgen\psg.h" />
     <ClInclude Include="fmgen\types.h" />
+    <ClInclude Include="IFmSoundChip.h" />
     <ClInclude Include="md5.h" />
     <ClInclude Include="membuf.h" />
     <ClInclude Include="mucom88config.h" />
     <ClInclude Include="mucomerror.h" />
     <ClInclude Include="mucomvm.h" />
+    <ClInclude Include="OpnaFmChip.h" />
     <ClInclude Include="osdep.h" />
     <ClInclude Include="plugin\mucom88if.h" />
     <ClInclude Include="plugin\plugin.h" />
@@ -147,6 +155,14 @@
     <ClInclude Include="win32\scci.h" />
     <ClInclude Include="win32\SCCIDefines.h" />
     <ClInclude Include="win32\soundds.h" />
+    <ClInclude Include="YmFmChip.h" />
+    <ClInclude Include="ymfm\src\ymfm.h" />
+    <ClInclude Include="ymfm\src\ymfm_adpcm.h" />
+    <ClInclude Include="ymfm\src\ymfm_fm.h" />
+    <ClInclude Include="ymfm\src\ymfm_fm.ipp" />
+    <ClInclude Include="ymfm\src\ymfm_misc.h" />
+    <ClInclude Include="ymfm\src\ymfm_opn.h" />
+    <ClInclude Include="ymfm\src\ymfm_ssg.h" />
     <ClInclude Include="Z80\Z80.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

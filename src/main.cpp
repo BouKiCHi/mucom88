@@ -71,6 +71,7 @@ static const char *p[] = {
 	"       -d Dump used voice parameter",
 	"       -l [n] Set recording lengh to n seconds ",
 	"       -g Compile only",
+	"       -y Use ymfm as an FM generator",
 	"       -?, -h Show help message ",
 	NULL };
 	int i;
@@ -147,6 +148,8 @@ int main( int argc, char *argv[] )
 	drivername = NULL;
 	fname[0] = 0;
 
+	bool useYmFM = false;
+
 	bool compile_only = false;
 
 	int song_length = 0;
@@ -212,6 +215,9 @@ int main( int argc, char *argv[] )
 			case 'r':
 				rhythmdir = argv[b + 1]; b++;
 				break;
+			case 'y':
+				useYmFM = true;
+				break;
 			default:
 				st=1;break;
 			}
@@ -229,6 +235,10 @@ int main( int argc, char *argv[] )
 
 	//		call main
 	CMucom mucom;
+	if (useYmFM) {
+		printf("Use ymfm as an FM generator.\n");
+		mucom.UseYmFm();
+	}
 
 	if (cmpopt & MUCOM_CMPOPT_STEP) {
 		mucom.Init(NULL, cmpopt, RENDER_RATE);

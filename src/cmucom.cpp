@@ -193,6 +193,11 @@ void CMucom::Init(void *window, int option, int rate)
 	//		option : 0   = 1:FMをミュート  2:SCCIを使用
 	//
 	vm = new mucomvm;
+	// ymfmを使用する
+	if (use_ymfm) {
+		vm->UseYmFm();
+	}
+
 	flag = 1;
 	if (original_mode) vm->SetOrignalMode();
 

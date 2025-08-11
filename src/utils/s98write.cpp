@@ -5,6 +5,7 @@
 #include "s98write.h"
 
 S98Write::S98Write() {
+	fp = NULL;
 	BaseTick = 0;
 	SyncBufferTicks = 0;
 	LoopPoint = 0;

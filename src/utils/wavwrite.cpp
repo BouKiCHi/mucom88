@@ -49,7 +49,7 @@ void WavWriter::WriteHeader()
   HeaderOut = true;
   if (fp == NULL) return;
 
-  unsigned char hdr[0x80];
+  unsigned char hdr[0x80] = {0};
 
   long PcmByteSize = TotalSamples * Channels * Bytes;
 

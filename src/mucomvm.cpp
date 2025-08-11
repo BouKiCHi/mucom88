@@ -14,11 +14,16 @@
 #include "adpcm.h"
 #include "mucomerror.h"
 
+// baseclockの定義で問題が発生するため、順番が大事。
+#include "OpnaFmChip.h"
+#include "YmFmChip.h"
+
 #define BUFSIZE 200			// Stream Buffer 200ms
 #define baseclock 7987200		// Base Clock
 
 #include "mucomvm_os.h"
 #include "voiceformat.h"
+
 
 /*------------------------------------------------------------*/
 /*
@@ -305,7 +310,7 @@ void mucomvm::InitSoundSystem(int rate)
 		osd->ResetTime();
 	}
 
-	opn = new FM::OPNA;
+	opn = NewChip();
 	if (opn) {
 		opn->Init(baseclock, 8000, 0);
 #if 0
@@ -320,6 +325,15 @@ void mucomvm::InitSoundSystem(int rate)
 
 	playflag = true;
 	//printf("#Stream update %dms.\n", time_stream);
+}
+
+// チップ作成
+IFmSoundChip* mucomvm::NewChip() 
+{
+	if (use_ymfm) {
+		return new YmFmChip;
+	}
+	return new OpnaFmChip;
 }
 
 void mucomvm::Reset(void)
