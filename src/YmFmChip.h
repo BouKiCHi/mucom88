@@ -40,13 +40,9 @@ private:
     uint8* adpcmbuf;
     emulated_time output_step = 0;
     emulated_time output_pos = 0;
-    // 1サンプルに対するus
-    emulated_time us_per_sample = 0;
 
 	// サンプルを進めるための時間
     emulated_time count_us = 0;
 
     int output_rate = 44100;
-    // キュー方式のサンプルバッファ
-	std::vector<int32_t> sample_buffer;
 };

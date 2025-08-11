@@ -51,7 +51,7 @@ public:
 	}
 
 	// タイマーを進める
-	virtual void advance_timer(int us) {	}
+	virtual void advance_timer(int us) { }
 
 	// simple getters
 	chip_type type() const { return m_type; }
@@ -98,7 +98,7 @@ protected:
 	chip_type m_type;
 	std::string m_name;
 	std::vector<uint8_t> m_data[ymfm::ACCESS_CLASSES];
-	uint32_t m_pcm_offset;
+	uint32_t m_pcm_offset = 0;
 #if (CAPTURE_NATIVE)
 public:
 	std::vector<int32_t> m_native_data;
@@ -128,20 +128,21 @@ public:
 		m_step(0x100000000ull / m_chip.sample_rate(clock)),
 		m_pos(0)
 	{
+		m_clock_per_us = (m_clock / 1000000);
 		m_chip.reset();
 	}
 
 	// タイマーを進める
 	virtual void advance_timer(int us) override {
 		if (first_timer_enable) {
-			first_timer_duration -= us * (m_clock / 1000000);
+			first_timer_duration -= us * m_clock_per_us;
 			if (first_timer_duration <= 0) {
 				m_engine->engine_timer_expired(0);
 			}
 		}
 
 		if (second_timer_enable) {
-			second_timer_duration -= us * (m_clock / 1000000);
+			second_timer_duration -= us * m_clock_per_us;
 			if (second_timer_duration <= 0) {
 				m_engine->engine_timer_expired(1);
 			}
@@ -156,7 +157,7 @@ public:
 				first_timer_duration = 0;
 			} else {
 				first_timer_enable = true;
-				first_timer_duration = duration_in_clocks;
+				first_timer_duration += duration_in_clocks;
 			}
 		}
 		if (tnum == 1) {
@@ -166,7 +167,7 @@ public:
 			}
 			else {
 				second_timer_enable = true;
-				second_timer_duration = duration_in_clocks;
+				second_timer_duration += duration_in_clocks;
 			}
 		}
 	}
@@ -177,7 +178,16 @@ public:
 	}
 
     virtual uint8_t read(uint32_t adr) override {
-        return m_chip.read(adr);
+		uint32_t addr1 = 0xffff, addr2 = 0xffff;
+		uint8_t data1 = 0;
+
+		addr1 = 0 + 2 * ((adr >> 8) & 3);
+		data1 = adr & 0xff;
+		addr2 = addr1 + ((m_type == CHIP_YM2149) ? 2 : 1);
+
+		m_chip.write(addr1, data1);
+
+        return m_chip.read(addr2);
     }
 
 	virtual uint32_t sample_rate() const override
@@ -249,9 +259,9 @@ protected:
 	// handle a read from the buffer
 	virtual uint8_t ymfm_external_read(ymfm::access_class type, uint32_t offset) override
 	{
-		if (type == ymfm::ACCESS_ADPCM_A)
+		if (type == ymfm::ACCESS_ADPCM_B)
 		{
-			if (offset >= adpcm_buflen)
+			if (offset >= (uint32_t)adpcm_buflen)
 				return 0;
 
 			return adpcm_buf[offset];
@@ -268,6 +278,7 @@ protected:
 
 	// internal state
 	ChipType m_chip;
+	uint32_t m_clock_per_us;
 	uint32_t m_clock;
 	uint64_t m_clocks;
 	typename ChipType::output_data m_output;
@@ -284,6 +295,7 @@ protected:
 vgm_chip_base* current_chip = nullptr;
 
 
+// 新規 YM2608作成
 vgm_chip<ymfm::ym2608> *new2608(uint32_t clock)
 {
 	char const* chipname = "YM2608";
@@ -314,15 +326,10 @@ vgm_chip<ymfm::ym2608> *new2608(uint32_t clock)
 YmFmChip::YmFmChip() {
 	adpcmbuf = new uint8_t[0x40000];
 	output_rate = 44100;
-	// 初期出力レートは8000Hz
     output_step = 0x100000000ull / output_rate;
 	output_pos = 0;
-	count_us = 0;
-	us_per_sample = 1000000 / output_rate;
 	// 初期化時にADPCMバッファをゼロクリア
 	memset(adpcmbuf, 0, 0x40000);
-	// サンプルバッファを初期化
-	sample_buffer.clear();
 }
 
 YmFmChip::~YmFmChip() {
@@ -350,9 +357,6 @@ void YmFmChip::SetRate(uint bc, uint rate, bool ipflag) {
     output_rate = rate;
     output_step = 0x100000000ull / output_rate;
 	output_pos = 0;
-
-	// 1サンプルに対するus
-	us_per_sample = 1000000 / output_rate;
 }
 
 uint YmFmChip::GetReg(uint addr) {
@@ -374,8 +378,6 @@ bool YmFmChip::Count(int32_t us) {
 	count_us += us;
 	current_chip->advance_timer(us);
 	return current_chip->read_irq();
-
-    //return read_irq(CHIP_YM2608, 0);
 }
 
 void YmFmChip::Mix(FM::Sample* buffer, int nsamples) {

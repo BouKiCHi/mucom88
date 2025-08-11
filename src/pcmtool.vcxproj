@@ -47,7 +47,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);utils/codeconv;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);utils/codeconv;ymfm\src\</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -109,6 +109,11 @@
     <ClCompile Include="win32\osdep_win.cpp" />
     <ClCompile Include="win32\realchip.cpp" />
     <ClCompile Include="win32\soundds.cpp" />
+    <ClCompile Include="YmFmChip.cpp" />
+    <ClCompile Include="ymfm\src\ymfm_adpcm.cpp" />
+    <ClCompile Include="ymfm\src\ymfm_misc.cpp" />
+    <ClCompile Include="ymfm\src\ymfm_opn.cpp" />
+    <ClCompile Include="ymfm\src\ymfm_ssg.cpp" />
     <ClCompile Include="Z80\Z80.cpp" />
     <ClCompile Include="utils\pcmtool.cpp" />
   </ItemGroup>
@@ -135,11 +140,13 @@
     <ClInclude Include="fmgen\opna.h" />
     <ClInclude Include="fmgen\psg.h" />
     <ClInclude Include="fmgen\types.h" />
+    <ClInclude Include="IFmSoundChip.h" />
     <ClInclude Include="md5.h" />
     <ClInclude Include="membuf.h" />
     <ClInclude Include="mucom88config.h" />
     <ClInclude Include="mucomerror.h" />
     <ClInclude Include="mucomvm.h" />
+    <ClInclude Include="OpnaFmChip.h" />
     <ClInclude Include="osdep.h" />
     <ClInclude Include="plugin\mucom88if.h" />
     <ClInclude Include="plugin\plugin.h" />
@@ -157,6 +164,14 @@
     <ClInclude Include="win32\scci.h" />
     <ClInclude Include="win32\SCCIDefines.h" />
     <ClInclude Include="win32\soundds.h" />
+    <ClInclude Include="YmFmChip.h" />
+    <ClInclude Include="ymfm\src\ymfm.h" />
+    <ClInclude Include="ymfm\src\ymfm_adpcm.h" />
+    <ClInclude Include="ymfm\src\ymfm_fm.h" />
+    <ClInclude Include="ymfm\src\ymfm_fm.ipp" />
+    <ClInclude Include="ymfm\src\ymfm_misc.h" />
+    <ClInclude Include="ymfm\src\ymfm_opn.h" />
+    <ClInclude Include="ymfm\src\ymfm_ssg.h" />
     <ClInclude Include="Z80\Z80.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
