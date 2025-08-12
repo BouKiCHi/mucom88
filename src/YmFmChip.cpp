@@ -128,22 +128,21 @@ public:
 		m_step(0x100000000ull / m_chip.sample_rate(clock)),
 		m_pos(0)
 	{
-		m_clock_per_us = (m_clock / 1000000);
 		m_chip.reset();
 	}
 
 	// タイマーを進める
 	virtual void advance_timer(int us) override {
-		if (first_timer_enable) {
-			first_timer_duration -= us * m_clock_per_us;
-			if (first_timer_duration <= 0) {
+		if (timera_enable) {
+			timera_duration_us -= us;
+			if (timera_duration_us <= 0) {
 				m_engine->engine_timer_expired(0);
 			}
 		}
 
-		if (second_timer_enable) {
-			second_timer_duration -= us * m_clock_per_us;
-			if (second_timer_duration <= 0) {
+		if (timerb_enable) {
+			timerb_duration_us -= us;
+			if (timerb_duration_us <= 0) {
 				m_engine->engine_timer_expired(1);
 			}
 		}
@@ -151,23 +150,27 @@ public:
 
 	// タイマー設定
 	virtual void ymfm_set_timer(uint32_t tnum, int32_t duration_in_clocks) {
+		// timer_a
 		if (tnum == 0) {
 			if (duration_in_clocks < 0) {
-				first_timer_enable = false;
-				first_timer_duration = 0;
+				timera_enable = false;
+				timera_duration_us = 0;
 			} else {
-				first_timer_enable = true;
-				first_timer_duration += duration_in_clocks;
+				timera_enable = true;
+                int duration_us = static_cast<int>((static_cast<double>(duration_in_clocks) * 1000000.0) / m_clock);
+				timera_duration_us += duration_us;
 			}
 		}
+		// timer_b
 		if (tnum == 1) {
 			if (duration_in_clocks < 0) {
-				second_timer_enable = false;
-				second_timer_duration = 0;
+				timerb_enable = false;
+				timerb_duration_us = 0;
 			}
 			else {
-				second_timer_enable = true;
-				second_timer_duration += duration_in_clocks;
+				timerb_enable = true;
+				int duration_us = static_cast<int>((static_cast<double>(duration_in_clocks) * 1000000.0) / m_clock);
+				timerb_duration_us += duration_us;
 			}
 		}
 	}
@@ -234,8 +237,8 @@ public:
 			int32_t out0 = m_output.data[0];
 			int32_t out1 = m_output.data[1 % ChipType::OUTPUTS];
 			int32_t out2 = m_output.data[2 % ChipType::OUTPUTS];
-			*buffer++ += out0 + out2;
-			*buffer++ += out1 + out2;
+			*buffer++ += (int32_t)(out0 * 1.5) + out2;
+			*buffer++ += (int32_t)(out1 * 1.5) + out2;
 		}
 		else if (m_type == CHIP_YMF278B)
 		{
@@ -271,14 +274,13 @@ protected:
 		return (offset < data.size()) ? data[offset] : 0;
 	}
 
-	bool first_timer_enable = false;
-	bool second_timer_enable = false;
-	int32_t first_timer_duration = 0;
-	int32_t second_timer_duration = 0;
+	bool timera_enable = false;
+	bool timerb_enable = false;
+	int32_t timera_duration_us = 0;
+	int32_t timerb_duration_us = 0;
 
 	// internal state
 	ChipType m_chip;
-	uint32_t m_clock_per_us;
 	uint32_t m_clock;
 	uint64_t m_clocks;
 	typename ChipType::output_data m_output;
@@ -345,14 +347,17 @@ bool YmFmChip::Init(uint c, uint r, bool ipflag, const char* path) {
 
 // レジスタ書き込み
 void YmFmChip::SetReg(uint addr, uint data) {
+	assert(current_chip != nullptr);
 	current_chip->write(addr, data);
 }
 
 void YmFmChip::SetRate(uint bc, uint rate, bool ipflag) {
-    // チップ作成。作成とクロック設定、初期化を分けられないため
-	current_chip = new2608(bc);
-	current_chip->set_adpcm(adpcmbuf, 0x40000);
-	current_chip->write(0x29, 0xff);
+	if (current_chip ==  nullptr) {
+		// チップ作成。作成とクロック設定、初期化を分けられないため
+		current_chip = new2608(bc);
+		current_chip->set_adpcm(adpcmbuf, 0x40000);
+		current_chip->write(0x29, 0xff);
+	}
 
     output_rate = rate;
     output_step = 0x100000000ull / output_rate;
@@ -360,6 +365,7 @@ void YmFmChip::SetRate(uint bc, uint rate, bool ipflag) {
 }
 
 uint YmFmChip::GetReg(uint addr) {
+	assert(current_chip != nullptr);
 	return current_chip->read(addr);
 }
 

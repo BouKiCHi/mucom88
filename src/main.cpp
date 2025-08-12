@@ -72,6 +72,7 @@ static const char *p[] = {
 	"       -l [n] Set recording lengh to n seconds ",
 	"       -g Compile only",
 	"       -y Use ymfm as an FM generator",
+	"       -yf Use fmgen as an FM generator",
 	"       -?, -h Show help message ",
 	NULL };
 	int i;
@@ -148,17 +149,25 @@ int main( int argc, char *argv[] )
 	drivername = NULL;
 	fname[0] = 0;
 
-	bool useYmFM = false;
+	bool useYmFM = true;
 
 	bool compile_only = false;
 
 	int song_length = 0;
 
 	for (b=1;b<argc;b++) {
-		a1=*argv[b];a2=tolower(*(argv[b]+1));
+		a1=*argv[b];
 		if (a1!='-') {
 			strcpy(fname,argv[b]);
 		} else {
+			a2 = tolower(*(argv[b] + 1));
+			if (a2 == 0) {
+				st = 1; // Illegal switch
+				break;
+			}
+
+			char a3 = tolower(*(argv[b] + 2));
+
 			switch (a2) {
 			case 'p':
 				pcmfile = argv[b + 1]; b++;
@@ -217,6 +226,10 @@ int main( int argc, char *argv[] )
 				break;
 			case 'y':
 				useYmFM = true;
+				if (a3 == 'f') {
+					printf("Use fmgen as an FM generator.\n");
+					useYmFM = false;
+				}
 				break;
 			default:
 				st=1;break;
