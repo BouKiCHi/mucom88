@@ -27,3 +27,7 @@ src/pcmtool/Debug
 src/pcmtool/Release
 .vscode/
 
+hspplugin/.vs
+hspplugin/Debug
+hspplugin/Release
+hspplugin/hspmucom_vs22

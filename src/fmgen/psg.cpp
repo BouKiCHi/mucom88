@@ -143,10 +143,10 @@ void PSG::SetReg(uint regnum, uint8 data)
 {
 	if (regnum < 0x10)
 	{
-        int tmp;
 		reg[regnum] = data;
 		switch (regnum)
 		{
+			int tmp;
 
 		case 0:		// ChA Fine Tune
 		case 1:		// ChA Coarse Tune
@@ -358,4 +358,4 @@ void PSG::Mix(Sample* dest, int nsamples)
 //
 uint	PSG::noisetable[noisetablesize] = { 0, };
 int		PSG::EmitTable[0x20] = { -1, };
-uint	PSG::enveloptable[16][64] = { {0}, };
+uint	PSG::enveloptable[16][64] = { 0, };

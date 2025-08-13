@@ -2,7 +2,7 @@
 //	OPN/A/B interface with ADPCM support
 //	Copyright (C) cisc 1998, 2001.
 // ---------------------------------------------------------------------------
-//	$Id: opna.cpp,v 1.68 2003/06/12 14:03:44 cisc Exp $
+//	$Id: opna.cpp,v 1.70 2004/02/06 13:13:39 cisc Exp $
 
 #include "headers.h"
 #include "misc.h"
@@ -23,7 +23,7 @@
 //	このオプションを有効にすると ADPCM メモリへのアクセス(特に 8bit モード)が
 //	多少軽くなるかも
 //
-#define NO_BITTYPE_EMULATION
+//#define NO_BITTYPE_EMULATION
 
 #ifdef BUILD_OPNA
 #include "file.h"
@@ -67,7 +67,7 @@ void OPNBase::SetParameter(Channel4* ch, uint addr, uint data)
 			break;
 			
 		case 4: // 40-4E TL
-			op->SetTL(data & 0x7f, (regtc & 0x80) && (csmch == ch));
+			op->SetTL(data & 0x7f, ((regtc & 0xc0) == 0x80) && (csmch == ch));
 			break;
 			
 		case 5: // 50-5E KS/AR
@@ -114,7 +114,7 @@ void OPNBase::SetPrescaler(uint p)
 	if (prescale != p)
 	{
 		prescale = p;
-		assert(prescale < 3);
+		assert(0 <= prescale && prescale < 3);
 		
 		uint fmclock = clock / table[p][0] / 12;
 		
@@ -158,10 +158,9 @@ void OPNBase::SetVolumeFM(int db)
 //	タイマー時間処理
 void OPNBase::TimerA()
 {
-	if (regtc & 0x80)
+	if ((regtc & 0xc0) == 0x80)
 	{
-		csmch->KeyControl(0x00);
-		csmch->KeyControl(0x0f);
+		csmch->KeyOnCsm(0x0f);
 	}
 }
 
@@ -256,6 +255,10 @@ void OPN::SetReg(uint addr, uint data)
 		break;
 
 	case 0x27:
+		if (((regtc ^ data) & 0x80) && !(data & 0x80))
+		{
+			csmch->KeyOffCsm(0x0f);
+		}
 		SetTimerControl(data);
 		break;
 	
@@ -270,19 +273,20 @@ void OPN::SetReg(uint addr, uint data)
 
 	// F-Number
 	case 0xa0: case 0xa1: case 0xa2:
-		fnum[c] = data + fnum2[c] * 0x100; 
+		fnum[c] = data + fnum2[0] * 0x100;
+		ch[c].SetFNum(fnum[c]);
 		break;
 	
 	case 0xa4: case 0xa5: case 0xa6:
-		fnum2[c] = uint8(data);
+		fnum2[0] = uint8(data);
 		break;
 
 	case 0xa8: case 0xa9: case 0xaa:
-		fnum3[c] = data + fnum2[c+3] * 0x100; 
+		fnum3[c] = data + fnum2[1] * 0x100;
 		break;
 	
 	case 0xac: case 0xad: case 0xae:
-		fnum2[c+3] = uint8(data);
+		fnum2[1] = uint8(data);
 		break;
 	
 	case 0xb0:	case 0xb1:  case 0xb2:
@@ -455,8 +459,11 @@ void OPNABase::Reset()
 	stmask = ~0x1c;
 	statusnext = 0;
 	memaddr = 0;
+	adpcmlevel = 0;
 	adpcmd = 127;
 	adpcmx = 0;
+	adpcmreadbuf = 0;
+	apout0 = apout1 = adpcmout = 0;
 	lfocount = 0;
 	adpcmplay = false;
 	adplc = 0;
@@ -502,10 +509,9 @@ void OPNABase::SetChannelMask(uint mask)
 void OPNABase::SetReg(uint addr, uint data)
 {
 	int	c = addr & 3;
-    uint modified;
-
 	switch (addr)
 	{
+		uint modified;
 
 	// Timer -----------------------------------------------------------------
 		case 0x24: case 0x25:
@@ -517,6 +523,10 @@ void OPNABase::SetReg(uint addr, uint data)
 			break;
 
 		case 0x27:
+			if (((regtc ^ data) & 0x80) && !(data & 0x80))
+			{
+				csmch->KeyOffCsm(0x0f);
+			}
 			SetTimerControl(data);
 			break;
 
@@ -543,23 +553,27 @@ void OPNABase::SetReg(uint addr, uint data)
 	// F-Number --------------------------------------------------------------
 	case 0x1a0:	case 0x1a1: case 0x1a2:
 		c += 3;
+		fnum[c] = data + fnum2[2] * 0x100;
+		ch[c].SetFNum(fnum[c]);
+		break;
 	case 0xa0:	case 0xa1: case 0xa2:
-		fnum[c] = data + fnum2[c] * 0x100;
+		fnum[c] = data + fnum2[0] * 0x100;
 		ch[c].SetFNum(fnum[c]);
 		break;
 
 	case 0x1a4:	case 0x1a5: case 0x1a6:
-		c += 3;
+		fnum2[2] = uint8(data);
+		break;
 	case 0xa4 : case 0xa5: case 0xa6:
-		fnum2[c] = uint8(data);
+		fnum2[0] = uint8(data);
 		break;
 
 	case 0xa8:	case 0xa9: case 0xaa:
-		fnum3[c] = data + fnum2[c+6] * 0x100;
+		fnum3[c] = data + fnum2[1] * 0x100;
 		break;
 
 	case 0xac : case 0xad: case 0xae:
-		fnum2[c+6] = uint8(data);
+		fnum2[1] = uint8(data);
 		break;
 		
 	// Algorithm -------------------------------------------------------------
@@ -636,7 +650,7 @@ void OPNABase::SetADPCMBReg(uint addr, uint data)
 	case 0x03:		// Start Address H
 		adpcmreg[addr - 0x02 + 0] = data;
 		startaddr = (adpcmreg[1]*256+adpcmreg[0]) << 6;
-		memaddr = startaddr;
+//		memaddr = startaddr;
 //		LOG1("  startaddr %.6x", startaddr);
 		break;
 
@@ -648,7 +662,7 @@ void OPNABase::SetADPCMBReg(uint addr, uint data)
 		break;
 
 	case 0x08:		// ADPCM data
-		if ((control1 & 0x60) == 0x60)
+		if ((control1 & 0xe0) == 0x60)
 		{
 //			LOG2("  Wr [0x%.5x] = %.2x", memaddr, data);
 			WriteRAM(data);
@@ -1111,7 +1125,7 @@ void OPNABase::BuildLFOTable()
 			if (c < 0x40)		v = c * 2 + 0x80;
 			else if (c < 0xc0)	v = 0x7f - (c - 0x40) * 2 + 0x80;
 			else				v = (c - 0xc0) * 2;
-			pmtable[c] = c;
+			pmtable[c] = v;
 
 			if (c < 0x80)		v = 0xff - c * 2;
 			else				v = (c - 0x80) * 2;
@@ -1182,6 +1196,8 @@ OPNA::OPNA()
 		rhythm[i].pos = 0;
 		rhythm[i].size = 0;
 		rhythm[i].volume = 0;
+		rhythm[i].level = 0;
+		rhythm[i].pan = 0;
 	}
 	rhythmtvol = 0;
 	adpcmmask = 0x3ffff;
@@ -1223,7 +1239,7 @@ bool OPNA::Init(uint c, uint r, bool ipflag, const char* path)
 	SetVolumeADPCM(0);
 	SetVolumeRhythmTotal(0);
 	for (int i=0; i<6; i++)
-		SetVolumeRhythm(0, 0);
+		SetVolumeRhythm(i, 0);
 	return true;
 }
 
@@ -1234,6 +1250,7 @@ void OPNA::Reset()
 {
 	reg29 = 0x1f;
 	rhythmkey = 0;
+	rhythmtl = 0;
 	limitaddr = 0x3ffff;
 	OPNABase::Reset();
 }
@@ -1272,20 +1289,20 @@ bool OPNA::LoadRhythmSample(const char* path)
 	{
 		FileIO file;
 		uint32 fsize;
-		char buf[_MAXPATH] = "";
+		char buf[MAX_PATH] = "";
 		if (path)
-			strncpy(buf, path, _MAXPATH);
-		strncat(buf, "2608_", _MAXPATH);
-		strncat(buf, rhythmname[i], _MAXPATH);
-		strncat(buf, ".WAV", _MAXPATH);
+			strncpy(buf, path, MAX_PATH);
+		strncat(buf, "2608_", MAX_PATH);
+		strncat(buf, rhythmname[i], MAX_PATH);
+		strncat(buf, ".WAV", MAX_PATH);
 
 		if (!file.Open(buf, FileIO::readonly))
 		{
 			if (i != 5)
 				break;
 			if (path)
-				strncpy(buf, path, _MAXPATH);
-			strncpy(buf, "2608_RYM.WAV", _MAXPATH);
+				strncpy(buf, path, MAX_PATH);
+			strncpy(buf, "2608_RYM.WAV", MAX_PATH);
 			if (!file.Open(buf, FileIO::readonly))
 				break;
 		}
@@ -1319,7 +1336,7 @@ bool OPNA::LoadRhythmSample(const char* path)
 			break;
 		fsize = Max(fsize, (1<<31)/1024);
 		
-		delete[] rhythm[i].sample;
+		delete rhythm[i].sample;
 		rhythm[i].sample = new int16[fsize];
 		if (!rhythm[i].sample)
 			break;
@@ -1418,7 +1435,7 @@ void OPNA::RhythmMix(Sample* buffer, uint count)
 		for (int i=0; i<6; i++)
 		{
 			Rhythm& r = rhythm[i];
-			if ((rhythmkey & (1 << i)) && (int)r.level < 128)
+			if ((rhythmkey & (1 << i)) && r.level < 128)
 			{
 				int db = Limit(rhythmtl+rhythmtvol+r.level+r.volume, 127, -31);
 				int vol = tltable[FM_TLPOS+(db << (FM_TLBITS-7))] >> 4;
@@ -1560,7 +1577,7 @@ bool OPNB::Init(uint c, uint r, bool ipflag,
 	SetVolumeADPCMB(0);
 	SetVolumeADPCMATotal(0);
 	for (i=0; i<6; i++)
-		SetVolumeADPCMA(0, 0);
+		SetVolumeADPCMA(i, 0);
 	SetChannelMask(0);
 	return true;
 }
@@ -1788,7 +1805,7 @@ void OPNB::ADPCMAMix(Sample* buffer, uint count)
 		for (int i=0; i<6; i++)
 		{
 			ADPCMA& r = adpcma[i];
-			if ((adpcmakey & (1 << i)) && (int)r.level < 128)
+			if ((adpcmakey & (1 << i)) && r.level < 128)
 			{
 				uint maskl = r.pan & 2 ? -1 : 0;
 				uint maskr = r.pan & 1 ? -1 : 0;
@@ -1858,7 +1875,7 @@ void OPNB::SetVolumeADPCMB(int db)
 {
 	db = Min(db, 20);
 	if (db > -192)
-		adpcmvol = int(65536.0 * pow(10, db / 40.0));
+		adpcmvol = int(65536.0 * pow(10.0, db / 40.0));
 	else
 		adpcmvol = 0;
 }

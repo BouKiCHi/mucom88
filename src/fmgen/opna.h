@@ -14,7 +14,7 @@
 // ---------------------------------------------------------------------------
 //	class OPN/OPNA
 //	OPN/OPNA に良く似た音を生成する音源ユニット
-//
+//	
 //	interface:
 //	bool Init(uint clock, uint rate, bool, const char* path);
 //		初期化．このクラスを使用する前にかならず呼んでおくこと．
@@ -34,11 +34,11 @@
 //		(OPNA ONLY)
 //		Rhythm サンプルを読み直す．
 //		path は Init の path と同じ．
-//
+//		
 //	bool SetRate(uint clock, uint rate, bool)
 //		クロックや PCM レートを変更する
 //		引数等は Init を参照のこと．
-//
+//	
 //	void Mix(FM_SAMPLETYPE* dest, int nsamples)
 //		Stereo PCM データを nsamples 分合成し， dest で始まる配列に
 //		加える(加算する)
@@ -48,22 +48,22 @@
 //		・FM_SAMPLETYPE が short 型の場合クリッピングが行われる.
 //		・この関数は音源内部のタイマーとは独立している．
 //		  Timer は Count と GetNextEvent で操作する必要がある．
-//
+//	
 //	void Reset()
 //		音源をリセット(初期化)する
 //
 //	void SetReg(uint reg, uint data)
 //		音源のレジスタ reg に data を書き込む
-//
+//	
 //	uint GetReg(uint reg)
 //		音源のレジスタ reg の内容を読み出す
 //		読み込むことが出来るレジスタは PSG, ADPCM の一部，ID(0xff) とか
-//
+//	
 //	uint ReadStatus()/ReadStatusEx()
 //		音源のステータスレジスタを読み出す
 //		ReadStatusEx は拡張ステータスレジスタの読み出し(OPNA)
 //		busy フラグは常に 0
-//
+//	
 //	bool Count(uint32 t)
 //		音源のタイマーを t [μ秒] 進める．
 //		音源の内部状態に変化があった時(timer オーバーフロー)
@@ -73,9 +73,9 @@
 //		音源のタイマーのどちらかがオーバーフローするまでに必要な
 //		時間[μ秒]を返す
 //		タイマーが停止している場合は ULONG_MAX を返す… と思う
-//
+//	
 //	void SetVolumeFM(int db)/SetVolumePSG(int db) ...
-//		各音源の音量を＋−方向に調節する．標準値は 0.
+//		各音源の音量を＋－方向に調節する．標準値は 0.
 //		単位は約 1/2 dB，有効範囲の上限は 20 (10dB)
 //
 namespace FM
@@ -85,10 +85,10 @@ namespace FM
 	{
 	public:
 		OPNBase();
-
+		
 		bool	Init(uint c, uint r);
 		virtual void Reset();
-
+		
 		void	SetVolumeFM(int db);
 		void	SetVolumePSG(int db);
 		void	SetLPFCutoff(uint freq) {}	// obsolete
@@ -97,22 +97,22 @@ namespace FM
 		void	SetParameter(Channel4* ch, uint addr, uint data);
 		void	SetPrescaler(uint p);
 		void	RebuildTimeTable();
-
+		
 		int		fmvolume;
-
+		
 		uint	clock;				// OPN クロック
 		uint	rate;				// FM 音源合成レート
 		uint	psgrate;			// FMGen  出力レート
 		uint	status;
 		Channel4* csmch;
-
+		
 
 		static  uint32 lfotable[8];
-
+	
 	private:
 		void	TimerA();
 		uint8	prescale;
-
+		
 	protected:
 		Chip	chip;
 		PSG		psg;
@@ -124,16 +124,16 @@ namespace FM
 	public:
 		OPNABase();
 		~OPNABase();
-
+		
 		uint	ReadStatus() { return status & 0x03; }
 		uint	ReadStatusEx();
 		void	SetChannelMask(uint mask);
-
+	
 	private:
 		virtual void Intr(bool) {}
 
 		void	MakeTable2();
-
+	
 	protected:
 		bool	Init(uint c, uint r, bool);
 		bool	SetRate(uint c, uint r, bool);
@@ -141,12 +141,12 @@ namespace FM
 		void	Reset();
 		void 	SetReg(uint addr, uint data);
 		void	SetADPCMBReg(uint reg, uint data);
-		uint	GetReg(uint addr);
-
+		uint	GetReg(uint addr);	
+	
 	protected:
 		void	FMMix(Sample* buffer, int nsamples);
 		void 	Mix6(Sample* buffer, int nsamples, int activech);
-
+		
 		void	MixSubS(int activech, ISample**);
 		void	MixSubSL(int activech, ISample**);
 
@@ -162,23 +162,23 @@ namespace FM
 		uint	ReadRAM();
 		int		ReadRAMN();
 		int		DecodeADPCMBSample(uint);
-
+		
 	// FM 音源関係
 		uint8	pan[6];
 		uint8	fnum2[9];
-
+		
 		uint8	reg22;
 		uint	reg29;		// OPNA only?
-
+		
 		uint	stmask;
 		uint	statusnext;
 
 		uint32	lfocount;
 		uint32	lfodcount;
-
+		
 		uint	fnum[6];
 		uint	fnum3[3];
-
+		
 	// ADPCM 関係
 		uint8*	adpcmbuf;		// ADPCM RAM
 		uint	adpcmmask;		// メモリアドレスに対するビットマスク
@@ -190,19 +190,19 @@ namespace FM
 		int		adpcmlevel;		// ADPCM 音量
 		int		adpcmvolume;
 		int		adpcmvol;
-		uint	deltan;			// ΔN
+		uint	deltan;			// ⊿N
 		int		adplc;			// 周波数変換用変数
 		int		adpld;			// 周波数変換用変数差分値
 		uint	adplbase;		// adpld の元
 		int		adpcmx;			// ADPCM 合成用 x
-		int		adpcmd;			// ADPCM 合成用 Δ
+		int		adpcmd;			// ADPCM 合成用 ⊿
 		int		adpcmout;		// ADPCM 合成後の出力
 		int		apout0;			// out(t-2)+out(t-1)
 		int		apout1;			// out(t-1)+out(t)
 
 		uint	adpcmreadbuf;	// ADPCM リード用バッファ
 		bool	adpcmplay;		// ADPCM 再生中
-		int8	granuality;
+		int8	granuality;		
 		bool	adpcmmask_;
 
 		uint8	control1;		// ADPCM コントロールレジスタ１
@@ -226,33 +226,33 @@ namespace FM
 	public:
 		OPN();
 		virtual ~OPN() {}
-
+		
 		bool	Init(uint c, uint r, bool=false, const char* =0);
 		bool	SetRate(uint c, uint r, bool=false);
-
+		
 		void	Reset();
 		void 	Mix(Sample* buffer, int nsamples);
 		void 	SetReg(uint addr, uint data);
 		uint	GetReg(uint addr);
 		uint	ReadStatus() { return status & 0x03; }
 		uint	ReadStatusEx() { return 0xff; }
-
+		
 		void	SetChannelMask(uint mask);
-
+		
 		int		dbgGetOpOut(int c, int s) { return ch[c].op[s].dbgopout_; }
 		int		dbgGetPGOut(int c, int s) { return ch[c].op[s].dbgpgout_; }
 		Channel4* dbgGetCh(int c) { return &ch[c]; }
-
+	
 	private:
 		virtual void Intr(bool) {}
-
+		
 		void	SetStatus(uint bit);
 		void	ResetStatus(uint bit);
-
+		
 		uint	fnum[3];
 		uint	fnum3[3];
 		uint8	fnum2[6];
-
+		
 		Channel4 ch[3];
 	};
 
@@ -262,10 +262,10 @@ namespace FM
 	public:
 		OPNA();
 		virtual ~OPNA();
-
+		
 		bool	Init(uint c, uint r, bool  = false, const char* rhythmpath=0);
 		bool	LoadRhythmSample(const char*);
-
+	
 		bool	SetRate(uint c, uint r, bool = false);
 		void 	Mix(Sample* buffer, int nsamples);
 
@@ -283,7 +283,7 @@ namespace FM
 		int		dbgGetPGOut(int c, int s) { return ch[c].op[s].dbgpgout_; }
 		Channel4* dbgGetCh(int c) { return &ch[c]; }
 
-
+		
 	private:
 		struct Rhythm
 		{
@@ -296,13 +296,13 @@ namespace FM
 			uint	step;		// すてっぷち
 			uint	rate;		// さんぷるのれーと
 		};
-
+	
 		void	RhythmMix(Sample* buffer, uint count);
 
 	// リズム音源関係
 		Rhythm	rhythm[6];
 		int8	rhythmtl;		// リズム全体の音量
-		int		rhythmtvol;
+		int		rhythmtvol;		
 		uint8	rhythmkey;		// リズムのキー
 	};
 
@@ -312,11 +312,11 @@ namespace FM
 	public:
 		OPNB();
 		virtual ~OPNB();
-
+		
 		bool	Init(uint c, uint r, bool = false,
 					 uint8 *_adpcma = 0, int _adpcma_size = 0,
 					 uint8 *_adpcmb = 0, int _adpcmb_size = 0);
-
+	
 		bool	SetRate(uint c, uint r, bool = false);
 		void 	Mix(Sample* buffer, int nsamples);
 
@@ -330,7 +330,7 @@ namespace FM
 		void	SetVolumeADPCMB(int db);
 
 //		void	SetChannelMask(uint mask);
-
+		
 	private:
 		struct ADPCMA
 		{
@@ -346,21 +346,21 @@ namespace FM
 			int		adpcmx;		// 変換用
 			int		adpcmd;		// 変換用
 		};
-
+	
 		int		DecodeADPCMASample(uint);
 		void	ADPCMAMix(Sample* buffer, uint count);
 		static void InitADPCMATable();
-
+		
 	// ADPCMA 関係
 		uint8*	adpcmabuf;		// ADPCMA ROM
 		int		adpcmasize;
 		ADPCMA	adpcma[6];
 		int8	adpcmatl;		// ADPCMA 全体の音量
-		int		adpcmatvol;
+		int		adpcmatvol;		
 		uint8	adpcmakey;		// ADPCMA のキー
 		int		adpcmastep;
 		uint8	adpcmareg[32];
-
+ 
 		static int jedi_table[(48+1)*16];
 
 		Channel4 ch[6];
@@ -372,32 +372,32 @@ namespace FM
 	public:
 		OPN2();
 		virtual ~OPN2() {}
-
+		
 		bool	Init(uint c, uint r, bool=false, const char* =0);
 		bool	SetRate(uint c, uint r, bool);
-
+		
 		void	Reset();
 		void 	Mix(Sample* buffer, int nsamples);
 		void 	SetReg(uint addr, uint data);
 		uint	GetReg(uint addr);
 		uint	ReadStatus() { return status & 0x03; }
 		uint	ReadStatusEx() { return 0xff; }
-
+		
 		void	SetChannelMask(uint mask);
-
+		
 	private:
 		virtual void Intr(bool) {}
-
+		
 		void	SetStatus(uint bit);
 		void	ResetStatus(uint bit);
-
+		
 		uint	fnum[3];
 		uint	fnum3[3];
 		uint8	fnum2[6];
-
+		
 	// 線形補間用ワーク
 		int32	mixc, mixc1;
-
+		
 		Channel4 ch[3];
 	};
 }

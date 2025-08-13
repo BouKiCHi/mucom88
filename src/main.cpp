@@ -149,7 +149,7 @@ int main( int argc, char *argv[] )
 	drivername = NULL;
 	fname[0] = 0;
 
-	bool useYmFM = true;
+	bool useYmFM = false;
 
 	bool compile_only = false;
 

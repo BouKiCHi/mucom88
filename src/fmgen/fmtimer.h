@@ -39,7 +39,6 @@ namespace FM
 		int32	timera, timera_count;
 		int32	timerb, timerb_count;
 		int32	timer_step;
-		double	timer_stepd;
 	};
 
 // ---------------------------------------------------------------------------
