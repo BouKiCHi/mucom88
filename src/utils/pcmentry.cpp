@@ -8,6 +8,8 @@ PcmEntry::PcmEntry() {
 	adrl = 0;
 	adrh = 0;
 	pcmopt = 0;
+	filesize = 0;
+	memset(name, 0x00, sizeof(name));
 	pcmstart = 0;
 	data = NULL;
 }
@@ -22,14 +24,14 @@ void PcmEntry::SetEntry(unsigned char *entry) {
 	int len = strlen(name);
 	strncpy((char*)entry, name, 16);
 	if (len < 16) memset(entry + len, 0x20, 16 - len);
+	unsigned int adpcmsize = filesize & 0xfffffffc;
 
-	int whl = adrh - adrl;
 
-	WriteWord(entry + 0x10, adrl);
-	WriteWord(entry + 0x12, adrh);
+	WriteWord(entry + 0x10, 0x00);
+	WriteWord(entry + 0x12, filesize);
 	WriteWord(entry + 0x1a, pcmopt);
 	WriteWord(entry + 0x1c, pcmstart);
-	WriteWord(entry + 0x1e, whl);
+	WriteWord(entry + 0x1e, adpcmsize);
 }
 
 int PcmEntry::GetLength() {
@@ -42,10 +44,7 @@ void PcmEntry::WriteWord(unsigned char *data, int value) {
 }
 
 void PcmEntry::SetStart(int start) {
-	int end = start + filesize;
-	adrl = (start >> 2);
-	adrh = (end >> 2);
-	pcmstart = (start >> 2);
+	pcmstart = start;
 }
 
 bool PcmEntry::SetData(const char *name, const char *binfile) {

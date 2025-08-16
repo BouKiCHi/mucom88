@@ -11,7 +11,6 @@ public:
 
     int Convert(const char *infile);
     bool ConvertList(FILE *fp);
-	int NextAddress(int len);
 	bool WriteBinary(const char *outfile);
 
     CMucom *cmucom;

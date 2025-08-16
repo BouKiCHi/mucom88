@@ -25,7 +25,7 @@
 #include "pcmtool.h"
 #include "pcmentry.h"
 
-void SplitPath(const char *path, char *drive, char *dir, char *name, char *ext) {
+void SplitPath(const char* path, char* drive, char* dir, char* name, char* ext) {
 #ifdef _WIN32
 	_splitpath(path, drive, dir, name, ext);
 #else
@@ -33,11 +33,11 @@ void SplitPath(const char *path, char *drive, char *dir, char *name, char *ext) 
 	strcpy(buf, path);
 	if (drive) drive[0] = 0;
 	if (dir) strcpy(dir, dirname(buf));
-    if (name) {
-        strcpy(name, basename(buf));
-        char *p = strchr(name, '.');
-        if (p) *p = 0;
-    }
+	if (name) {
+		strcpy(name, basename(buf));
+		char* p = strchr(name, '.');
+		if (p) *p = 0;
+	}
 	if (ext) strcpy(ext, strrchr(path, '.'));
 #endif
 
@@ -59,7 +59,6 @@ PcmTool::~PcmTool() {
 	if (body != NULL) delete[] body;
 	body = NULL;
 
-
 	if (cmucom != NULL) delete cmucom;
 	cmucom = NULL;
 }
@@ -68,8 +67,8 @@ bool PcmTool::WriteBinary(const char* outfile) {
 	FILE* fp = fopen(outfile, "wb");
 	if (!fp) { return false; }
 
-	fwrite(header, DATABIN_HEADER_LEN,1, fp);
-	fwrite(body, pcmBodySize,1, fp);
+	fwrite(header, DATABIN_HEADER_LEN, 1, fp);
+	fwrite(body, pcmBodySize, 1, fp);
 
 	fclose(fp);
 	return true;
@@ -114,7 +113,7 @@ int PcmTool::Convert(const char* filename)
 
 bool PcmTool::ConvertList(FILE* fp) {
 	entryCount = 0;
-	pcmBodySize = 0;
+	int startAddress = 0;
 
 	while (!feof(fp)) {
 		if (entryCount >= 32) break;
@@ -147,9 +146,10 @@ bool PcmTool::ConvertList(FILE* fp) {
 		printf("len=%d\n", pcmlen);
 
 		// 出力アドレス確定
-		entry[entryCount].SetStart(pcmBodySize);
-		pcmBodySize += NextAddress(pcmlen);
-
+		entry[entryCount].SetStart(startAddress);
+		startAddress += (pcmlen + 0x10) >> 2;
+		// 4バイトアライメントでpcmBodySizeを更新
+		pcmBodySize += (pcmlen + 0x10) & 0xfffffff0;
 		entryCount++;
 	}
 
@@ -170,16 +170,10 @@ bool PcmTool::ConvertList(FILE* fp) {
 	for (i = 0; i < entryCount; i++) {
 		int len = entry[i].GetLength();
 		memcpy(body + dest, entry[i].data, len);
-		dest += NextAddress(len);
+		// 4バイトアライメント
+		dest += (len + 0x10) & 0xfffffff0;
 		entry[i].SetEntry(header + (i * 32));
 	}
 
 	return true;
 }
-
-int PcmTool::NextAddress(int len) {
-	int a = (len & 0x03);
-	return (a > 0) ? len + (4 - a) : len;
-}
-
-
