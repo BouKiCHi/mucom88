@@ -62,12 +62,6 @@
     <ClCompile Include="..\src\plugin\plugin.cpp">
       <Filter>plugin</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\utils\pcmentry.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\utils\pcmtool.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\utils\s98write.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -186,9 +180,6 @@
       <Filter>plugin</Filter>
     </ClInclude>
     <ClInclude Include="..\src\utils\logwrite.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\utils\pcmentry.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="..\src\utils\s98write.h">

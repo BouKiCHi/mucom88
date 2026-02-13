@@ -9,6 +9,8 @@ PcmEntry::PcmEntry() {
 	adrh = 0;
 	pcmopt = 0;
 	pcmstart = 0;
+	filesize = 0;
+	memset(name, 0x00, sizeof(name));
 	data = NULL;
 }
 
@@ -36,11 +38,13 @@ int PcmEntry::GetLength() {
 	return filesize;
 }
 
+// WriteWord: Write a 16-bit value to the data array in little-endian format
 void PcmEntry::WriteWord(unsigned char *data, int value) {
 	data[0] = value & 0xff;
 	data[1] = (value >> 8) & 0xff;
 }
 
+// SetStart: Set the start address and calculate adrl, adrh, and pcmstart
 void PcmEntry::SetStart(int start) {
 	int end = start + filesize;
 	adrl = (start >> 2);
@@ -48,6 +52,7 @@ void PcmEntry::SetStart(int start) {
 	pcmstart = (start >> 2);
 }
 
+// SetData: Load PCM data from binary file
 bool PcmEntry::SetData(const char *name, const char *binfile) {
 	strcpy(this->name, name);
 

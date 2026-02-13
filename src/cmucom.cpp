@@ -279,6 +279,7 @@ void CMucom::Reset(int option)
 
 	vm->Reset();
 	PRINTF("#OpenMucom88 Ver.%s Copyright 1987-2020(C) Yuzo Koshiro\r\n",VERSION);
+	PRINTF("#FM generator mod Ver 250817 \r\n");
 	pcmfilename[0] = 0;
 
 	devres = vm->DeviceCheck();
